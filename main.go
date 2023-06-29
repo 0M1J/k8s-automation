@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	goautomation "github.com/ozx1812/go-automation/go-automation"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/container/v1"
@@ -100,27 +101,43 @@ func localKubernetesSetup() {
     if err != nil {
         panic(err.Error())
     }
-
-    ctx := context.TODO()
+    // testing list resource
 
     // list the deployments in the default namespace
-    deployments, err := clientset.AppsV1().Deployments("default").List(ctx, metav1.ListOptions{})
+    deployments, err := goautomation.ListResources(clientset, "Deployment")
     if err != nil {
         panic(err.Error())
     }
-
     fmt.Println("Deployments :")
-    for _, deployment := range deployments.Items {
-        fmt.Println(deployment.Name)
+    for _, deployment := range deployments{
+        fmt.Println(deployment)
+    }
+    
+    // list the services in the default namespace
+    services, err := goautomation.ListResources(clientset, "Service")
+    if err != nil {
+        panic(err.Error())
+    }
+    fmt.Println("Services:")
+    for _, service:= range services{
+        fmt.Println(service)
+    }
+
+    // list the configmaps in the default namespace
+    configmaps, err := goautomation.ListResources(clientset, "ConfigMap")
+    if err != nil {
+        panic(err.Error())
+    }
+    fmt.Println("Configmaps:")
+    for _, configmap:= range configmaps{
+        fmt.Println(configmap)
     }
 }
 
 func main() {
-    fmt.Print("Go Automation for Kubernetes deployments...")
     // accessing kube cluster through the gcp service acc key
     gcpKubernetesSetup()
 
     // accessing kube cluster through the local kube config file 
     localKubernetesSetup()
-    
 }
