@@ -132,6 +132,15 @@ func localKubernetesSetup() {
     for _, configmap:= range configmaps{
         fmt.Println(configmap)
     }
+
+    // create deployment from yaml file
+    yamlFile := "nginx-deployment.yaml"
+    err = goautomation.CreateResources(clientset, yamlFile)
+    if err != nil {
+        panic(err.Error())
+    }
+
+
 }
 
 func main() {
