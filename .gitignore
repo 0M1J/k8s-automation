@@ -1,0 +1,10 @@
+/bin
+# Libs
+/vendor
+# Test binary and covrage files
+*.test
+*.out
+# vscode debuging binary
+*/__debug_bin.exe
+*debug_bin
+
