@@ -3,6 +3,10 @@ package goautomation
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -138,6 +142,58 @@ func CreateResources(clientset *kubernetes.Clientset, yamlPath string) (error) {
             }
         default:
             return fmt.Errorf("unsupported resourceKind: %s", resourceKind)
+        }
+    }
+    return nil
+}
+
+func getResourceKind(path string) string {
+    dir := filepath.Dir(path)
+
+    parts := strings.Split(dir, string(os.PathSeparator))
+    kind := parts[len(parts)-1]
+    return kind
+}
+
+func getOrderIndex(kind string) int {
+    deploymentOrder := map[string]int{
+        "configmap": 0,
+        "deployment": 1,
+        "service": 2,
+    }
+    return deploymentOrder[kind]
+}
+
+func DeployResourcesFromDirectory(clientset *kubernetes.Clientset, kubeDir string) error {
+    deploymentOrder := []string{"configmap", "deployment", "service"}
+    resourceFiles := make(map[string][]string)
+    err := filepath.Walk(kubeDir, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return err
+        }
+
+        if !info.IsDir() {
+            resourceKind := getResourceKind(path)
+            resourceFiles[resourceKind] = append(resourceFiles[resourceKind], path)
+        }
+        return nil
+    })
+    if err != nil {
+        return err
+    }
+
+    sort.SliceStable(deploymentOrder, func(i, j int) bool {
+        return getOrderIndex(deploymentOrder[i]) < getOrderIndex(deploymentOrder[j])
+    })
+
+    for _, kind := range deploymentOrder{
+        files := resourceFiles[kind]
+        for _, file := range files {
+            fmt.Printf("file : %s", file)
+            err = CreateResources(clientset, file)
+            if err != nil {
+                return err
+            }
         }
     }
     return nil
