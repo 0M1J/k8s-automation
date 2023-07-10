@@ -16,3 +16,5 @@
 - A Kubernetes clientset is a client library in Go that provides a programmatic interface to interact with the Kubernetes API server. 
 - It offers methods and functions to perform operations on Kubernetes resources, allowing developers to create, update, delete, and retrieve information about objects within a Kubernetes cluster. 
 - The clientset abstracts the underlying communication details, making it easier to interact with the Kubernetes API programmatically.
+
+## [Basic Kubernetes](./docs/kubernetes.md)
