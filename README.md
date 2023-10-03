@@ -1,4 +1,4 @@
-# go-automation
+# k8s-automation
 
 ## glossary
 
